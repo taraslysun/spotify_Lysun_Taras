@@ -55,12 +55,28 @@ def get_songs_by_artists(token, artist_id):
     return json_result
 
 
+def song_by_id(token, song_id):
+    url = f'https://api.spotify.com/v1/tracks/{song_id}'
+    headers = get_auth_header(token)
+    result = get(url, headers=headers)
+    json_result = json.loads(result.content)
+    return json_result
+
 token = get_token()
 artist_name = input('Enter artist name: ')
 result = search_for_artist(token, artist_name)
 artist_id = result['id']
 songs = get_songs_by_artists(token, artist_id)
+artist_info = {'name': result['name'],
+               'most popular song': songs[0]['name'],
+               'artist_id': artist_id,
+               'Country of most popular song': song_by_id(token, songs[0]['id'])['available_markets'],
+               'top 10 songs': [str(idx+1)+'. '+song['name'] for idx,song in enumerate(songs)]
+               }
 
 
-for idx, song in enumerate(songs):
-    print(f"{idx+1}. {song['name']}")
+for idx, information in enumerate(artist_info):
+    print(f"{idx+1}. {information}")
+art_inf = input('Enter what you want to know about artist: ')
+info_index = int(art_inf) - 1
+print(list(artist_info.values())[info_index])
